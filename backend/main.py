@@ -13,8 +13,7 @@ def get_tasks():
     return {
         "tasks": [
             {"id": 1, "title": "Изучить Docker Compose", "done": True},
-            {"id": 2, "title": "Настроить KVM", "done": False},
-            {"id": 3, "title": "Автоматизировать запуск через Ansible", "done": False},
-            {"id": 4, "title": "Добавить сканирование Trivy", "done": False},
+            {"id": 2, "title": "Настроить KVM", "done": True},
+            {"id": 3, "title": "Автоматизировать запуск через Ansible", "done": True},
         ]
     }

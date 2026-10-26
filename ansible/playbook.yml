@@ -1,0 +1,53 @@
+---
+- name: Deploy Task Manager with Docker Compose
+  hosts: kvm_vm
+  become: true
+  vars:
+    app_dir: /opt/task-manager
+
+  tasks:
+    - name: Install Docker and Docker Compose v2
+      ansible.builtin.apt:
+        name:
+          - docker.io
+          - docker-compose-v2
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Ensure Docker service is running and enabled
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Create project directory on VM
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Copy backend files
+      ansible.builtin.copy:
+        src: ../backend
+        dest: "{{ app_dir }}/"
+        mode: preserve
+
+    - name: Copy frontend files
+      ansible.builtin.copy:
+        src: ../frontend
+        dest: "{{ app_dir }}/"
+        mode: preserve
+
+    - name: Copy compose.yaml
+      ansible.builtin.copy:
+        src: ../compose.yaml
+        dest: "{{ app_dir }}/compose.yaml"
+        mode: '0644'
+
+    - name: Start services with Docker Compose
+      ansible.builtin.command:
+        cmd: docker compose up -d --build
+        chdir: "{{ app_dir }}"
+      register: compose_result
+      changed_when: "'Started' in compose_result.stderr or 'Built' in compose_result.stderr or 'Recreated' in compose_result.stderr or 'Creating' in compose_result.stderr"
